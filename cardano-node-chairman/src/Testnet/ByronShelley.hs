@@ -122,8 +122,7 @@ testnet H.Conf {..} = do
   let fundsPerGenesisAddress = initSupply `div` numBftNodes
   let fundsPerByronAddress = fundsPerGenesisAddress * 9 `div` 10
 
-  portBase <- H.noteShowIO $ IO.randomRIO (3000, 50000)
-  allPorts <- H.noteShow ((+ portBase) <$> [1 .. L.length allNodes])
+  allPorts <- H.noteShowIO $ IO.allocateRandomPorts (L.length allNodes)
   nodeToPort <- H.noteShow (M.fromList (L.zip allNodes allPorts))
 
   let securityParam = 10
@@ -660,9 +659,9 @@ testnet H.Conf {..} = do
 
   deadline <- H.noteShowIO $ DTC.addUTCTime 90 <$> DTC.getCurrentTime
 
-  forM_ allNodes $ \node -> do
-    portString <- H.noteShowM . fmap S.strip . H.readFile $ tempAbsPath </> node </> "port"
-    H.assertByDeadlineM deadline (H.isPortOpen (read portString))
+  -- forM_ allNodes $ \node -> do
+  --   portString <- H.noteShowM . fmap S.strip . H.readFile $ tempAbsPath </> node </> "port"
+  --   H.assertByDeadlineM deadline $ H.isPortOpen (read portString)
 
   forM_ allNodes $ \node -> do
     sprocket <- H.noteShow $ Sprocket tempBaseAbsPath (socketDir </> node)
